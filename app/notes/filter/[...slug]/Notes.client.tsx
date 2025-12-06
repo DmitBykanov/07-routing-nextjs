@@ -13,12 +13,15 @@ import Pagination from "@/components/Pagination/Pagination";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
-
 import css from "./NotesPage.module.css";
 
 const NOTES_PER_PAGE = 12;
 
-export default function NotesClient() {
+interface NotesClientProps {
+  tag: string | null;
+}
+
+export default function NotesClient({ tag }: NotesClientProps) {
   const perPage = NOTES_PER_PAGE;
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -29,12 +32,13 @@ export default function NotesClient() {
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery<FetchNotesResponse>({
-    queryKey: ["notes", currentPage, debouncedSearch],
+    queryKey: ["notes", currentPage, debouncedSearch, tag],
     queryFn: () =>
       fetchNotes({
         page: currentPage,
         perPage,
         search: debouncedSearch,
+        tag,
       }),
     placeholderData: keepPreviousData,
   });
