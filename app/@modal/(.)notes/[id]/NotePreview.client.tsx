@@ -11,19 +11,15 @@ interface NotePreviewProps {
 
 export default function NotePreview({ note }: NotePreviewProps) {
   const router = useRouter();
+
   const handleBack = () => router.back();
 
   return (
     <Modal onClose={handleBack}>
       <div className={css.container}>
-        <button className={css.backBtn} onClick={handleBack}>
-          ← Back
-        </button>
-
         <div className={css.item}>
           <div className={css.header}>
             <h2>{note.title}</h2>
-            {note.tag && <span className={css.tag}>{note.tag}</span>}
           </div>
 
           <p className={css.content}>{note.content}</p>
@@ -31,7 +27,13 @@ export default function NotePreview({ note }: NotePreviewProps) {
           <p className={css.date}>
             Created: {new Date(note.createdAt).toLocaleDateString("uk-UA")}
           </p>
+
+          {note.tag && <p className={css.tag}>{note.tag}</p>}
         </div>
+
+        <button className={css.backBtn} onClick={handleBack}>
+          ← Back
+        </button>
       </div>
     </Modal>
   );

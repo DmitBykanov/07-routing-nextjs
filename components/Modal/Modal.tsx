@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useCallback, ReactNode } from "react";
+import { useEffect, useRef, ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
 import css from "./Modal.module.css";
 
 interface ModalProps {
@@ -10,43 +9,42 @@ interface ModalProps {
   onClose?: () => void;
 }
 
-export default function Modal({ children, onClose }: ModalProps) {
-  const router = useRouter();
+export default function Modal({ children }: ModalProps) {
   const backdropRef = useRef<HTMLDivElement>(null);
-  const handleClose = useCallback(() => {
-    if (onClose) onClose();
-    else router.back();
-  }, [onClose, router]);
 
   useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") handleClose();
-    };
+    const target = document.body;
+    if (!target) return;
+    const scrollY = window.scrollY;
+    const originalOverflow = target.style.overflow;
 
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    target.style.overflow = "hidden";
 
-    window.addEventListener("keydown", handleEsc);
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem("scroll-position", String(scrollY));
+    }
 
     return () => {
-      window.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [handleClose]);
+      target.style.overflow = originalOverflow;
 
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === backdropRef.current) handleClose();
-  };
+      let savedScrollY = scrollY;
+      if (typeof sessionStorage !== "undefined") {
+        const storedY = sessionStorage.getItem("scroll-position");
+        if (storedY) {
+          savedScrollY = parseInt(storedY, 10);
+          sessionStorage.removeItem("scroll-position");
+        }
+      }
+
+      window.scrollTo(0, savedScrollY);
+    };
+  }, []);
 
   const modalRoot = document.getElementById("modal-root");
   if (!modalRoot) return null;
 
   return createPortal(
-    <div
-      ref={backdropRef}
-      className={css.backdrop}
-      onClick={handleBackdropClick}
-    >
+    <div ref={backdropRef} className={css.backdrop}>
       <div className={css.modal}>{children}</div>
     </div>,
     modalRoot
