@@ -52,11 +52,10 @@ export default function NotePreview({ id }: NotePreviewProps) {
 
             {note.tag && <p className={css.tag}>{note.tag}</p>}
           </div>
-
-          <button className={css.backBtn} onClick={handleBack}>
-            ← Back
-          </button>
         </div>
+        <button className={css.backBtn} onClick={handleBack}>
+          ← Back
+        </button>
       </Modal>
     );
   }
